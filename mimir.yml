@@ -1,0 +1,114 @@
+multitenancy_enabled: false
+
+usage_stats:
+  enabled: false
+
+activity_tracker:
+  filepath: /data/metrics-activity.log
+
+common:
+  storage:
+    backend: s3
+    s3:
+      endpoint: rustfs:9000
+      region: us-east-1
+      insecure: true
+      bucket_lookup_type: path
+      access_key_id: ${S3_ACCESS_KEY}
+      secret_access_key: ${S3_SECRET_KEY}
+
+blocks_storage:
+  backend: s3
+  s3:
+    bucket_name: mimir-metrics
+  tsdb:
+    dir: /data/tsdb
+    wal_compression_enabled: true
+    flush_blocks_on_shutdown: true
+    memory_snapshot_on_shutdown: true
+    series_hash_cache_max_size_bytes: 134217728
+  bucket_store:
+    sync_dir: /data/tsdb-sync
+    sync_interval: 5m
+    index_cache:
+      backend: inmemory
+      inmemory:
+        max_size_bytes: 1073741824
+    series_hash_cache_max_size_bytes: 268435456
+
+ruler_storage:
+  backend: filesystem
+  filesystem:
+    dir: /data/ruler-storage
+
+distributor:
+  remote_timeout: 10s
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+
+ingester:
+  ring:
+    instance_addr: 127.0.0.1
+    replication_factor: 1
+    kvstore:
+      store: inmemory
+
+store_gateway:
+  sharding_ring:
+    instance_addr: 127.0.0.1
+    replication_factor: 1
+    kvstore:
+      store: inmemory
+
+compactor:
+  data_dir: /data/compactor
+  sharding_ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+
+querier:
+  max_concurrent: 4
+  timeout: 1m
+  max_samples: 10000000
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+
+frontend:
+  address: 127.0.0.1
+  port: 9095
+  scheduler_address: 127.0.0.1:9095
+  max_retries: 3
+  parallelize_shardable_queries: false
+
+frontend_worker:
+  scheduler_address: 127.0.0.1:9095
+
+query_scheduler:
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+
+ruler:
+  rule_path: /data/ruler
+  distributor:
+    address: 127.0.0.1:9095
+  query_frontend:
+    address: 127.0.0.1:9095
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+
+limits:
+  ingestion_rate: 100000
+  max_global_series_per_user: 1000000
+  max_fetched_series_per_query: 20000
+  max_fetched_chunks_per_query: 1000000
+  max_query_parallelism: 4
+  compactor_blocks_retention_period: 31d
