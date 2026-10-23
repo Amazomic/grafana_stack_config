@@ -28,12 +28,6 @@ storage:
       insecure: true
       forcepathstyle: true
 
-backend_scheduler:
-    provider:
-        compaction:
-            compaction:
-                block_retention: 12h
-
-backend_worker:
-    compaction:
-        block_retention: 12h
+compactor:
+  compaction:
+    block_retention: 12h
